@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>字母滚动动画</title>
+  <style>
+    .letter-roll {
+      position: relative;
+      display: inline-block;
+      overflow: hidden; /* 关键：隐藏超出的文字 */
+    }
+
+    .letter-roll .single-letter {
+      position: relative;
+      display: inline-block;
+      transition: transform 0.4s cubic-bezier(.25,.46,.45,.94);
+      
+      /* 把原文字“印”在上方 1.45em 位置 */
+      text-shadow: 0px 1.45em currentColor;
+      transform: translateY(0);
+    }
+
+    /* 鼠标悬停时字母上移 */
+    .letter-roll:hover .single-letter {
+      transform: translateY(-1.45em);
+    }
+  </style>
+</head>
+<body>
+
+<!-- 建议把字符拆分，更好看！ -->
+<h1 class="letter-roll letter-up">
+  <span class="single-letter">H</span>
+  <span class="single-letter">e</span>
+  <span class="single-letter">l</span>
+  <span class="single-letter">l</span>
+  <span class="single-letter">o</span>
+</h1>
+
+</body>
+</html>

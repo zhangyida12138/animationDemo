@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>Canvas 单词全封闭物理碰撞堆积</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0f172a;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    canvas {
+      background: #1e293b;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+
+  <script>
+    // 1. 基础配置
+    const WIDTH = 800;
+    const HEIGHT = 600;
+    const WORDS = ["JavaScript", "HTML5", "Canvas", "Matter.js", "Physics", "WebGl", "Animation", "React", "Vue", "Frontend", "CSS3", "Code", "Design", "Interact"];
+    const COLORS = ["#38bdf8", "#f43f5e", "#10b981", "#fbbf24", "#a855f7", "#ec4899", "#f97316"];
+
+    // 2. 初始化 Matter.js
+    const { Engine, Bodies, Composite, Mouse, MouseConstraint, Runner } = Matter;
+    const engine = Engine.create({
+      gravity: { y: 1 } // y: 1 表示标准向下重力。如果想体验无重力漂浮碰撞，可以改为 y: 0
+    });
+    const world = engine.world;
+    console.log(engine);
+    // 3. 创建 Canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+
+    // 4. 【核心修改】创建物理世界的全封闭四周边界（上下左右）
+    const wallThickness = 60; // 墙壁厚度
+    const wallOptions = { isStatic: true, render: { visible: false } };
+    
+    const ground = Bodies.rectangle(WIDTH / 2, HEIGHT + wallThickness / 2, WIDTH, wallThickness, wallOptions); // 地面
+    const topWall = Bodies.rectangle(WIDTH / 2, -wallThickness / 2, WIDTH, wallThickness, wallOptions);     // 天花板
+    const leftWall = Bodies.rectangle(-wallThickness / 2, HEIGHT / 2, wallThickness, HEIGHT, wallOptions);    // 左墙
+    const rightWall = Bodies.rectangle(WIDTH + wallThickness / 2, HEIGHT / 2, wallThickness, HEIGHT, wallOptions); // 右墙
+
+    // 将四面墙全部加入物理世界
+    Composite.add(world, [ground, topWall, leftWall, rightWall]);
+
+    // 5. 将单词转化为物理刚体
+    const wordBodies = [];
+    ctx.font = "bold 24px Arial";
+
+    WORDS.forEach((text, index) => {
+      const textMetrics = ctx.measureText(text);
+      const textWidth = textMetrics.width + 24; 
+      const textHeight = 36;                     
+
+      // 调整初始生成位置，让它们在画布内部上方随机掉落
+      const x = Math.random() * (WIDTH - 200) + 100;
+      const y = Math.random() * 200 + 50; 
+
+      const body = Bodies.rectangle(x, y, textWidth, textHeight, {
+        restitution: 0.6, // 稍微调高了一点弹性，撞击上下边界时反弹更明显
+        friction: 0.1,    
+        density: 0.01     
+      });
+
+      body.customData = {
+        text: text,
+        color: COLORS[index % COLORS.length],
+        w: textWidth,
+        h: textHeight
+      };
+
+      wordBodies.push(body);
+    });
+
+    Composite.add(world, wordBodies);
+
+    // 6. 添加鼠标拖拽控制
+    const mouse = Mouse.create(canvas);
+    const mouseConstraint = MouseConstraint.create(engine, {
+      mouse: mouse,
+      constraint: {
+        stiffness: 0.2, // 拖拽灵敏度
+        render: { visible: false }
+      }
+    });
+    Composite.add(world, mouseConstraint);
+
+    // 7. 启动引擎
+    const runner = Runner.create();
+    Runner.run(runner, engine);
+
+    // 8. Canvas 渲染循环
+    (function render() {
+      ctx.clearRect(0, 0, WIDTH, HEIGHT);
+      const bodies = Composite.allBodies(world);
+
+      bodies.forEach(body => {
+        if (body.isStatic) return; // 不渲染隐形的墙
+
+        const { text, color, w, h } = body.customData;
+
+        ctx.save();
+        ctx.translate(body.position.x, body.position.y);
+        ctx.rotate(body.angle);
+
+        // 绘制圆角矩形卡片
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.roundRect(-w / 2, -h / 2, w, h, 6);
+        ctx.fill();
+
+        // 绘制单词文字
+        ctx.fillStyle = '#ffffff';
+        ctx.font = "bold 20px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(text, 0, 0);
+
+        ctx.restore();
+      });
+
+      requestAnimationFrame(render);
+    })();
+  </script>
+</body>
+</html>

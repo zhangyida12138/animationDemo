@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+/* 布局基础 */
+.hover-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 22px;
+  cursor: pointer;
+  max-width: 600px;
+  user-select: none; /* 避免频繁悬停时误选文字 */
+}
+
+/* 文字区域 */
+.text {
+  flex: 1;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* 右侧动画盒子 */
+.arrow-box {
+  width: 0;
+  height: 80px;
+  background: #6c4dff;
+  border-radius: 4px;
+  opacity: 0;
+  transform: translateX(30px);
+  transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1); /* 升级为更灵动的贝塞尔曲线 */
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+/* 悬停展开盒子 */
+.hover-item:hover .arrow-box {
+  width: 80px;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ====================================== */
+/* 核心：CSS 变量动态延迟）*/
+/* ====================================== */
+.pixel {
+  opacity: 0;
+  /* 移出时的过渡：淡出时间短一些，显得更干净利落 */
+  transition: opacity 0.1s ease; 
+}
+
+.hover-item:hover .pixel {
+  opacity: 1;
+  /* 移入时的单点过渡时间 */
+  transition-property: opacity;
+  transition-duration: 0.02s;
+  /* 核心公式：基础延迟 0.15s + 序号 * 0.015s 步进 */
+  transition-delay: calc(var(--i) * 0.015s + 0.15s);
+}
+</style>
+</head>
+<body>
+
+<div class="hover-item">
+  <div class="text">尝试复刻那些好看的特效，尝试复刻那些好看的特效，尝试复刻那些好看的特效，尝试复刻那些好看的特效，尝试复刻那些好看的特效，尝试复刻那些好看的特效，尝试复刻那些好看的特效！</div>
+  <div class="arrow-box">
+    <svg width="24" height="21" fill="white">
+      <rect y="9" width="3" height="3" class="pixel" style="--i: 1;" />
+      <rect x="3" y="9" width="3" height="3" class="pixel" style="--i: 2;" />
+      <rect x="6" y="9" width="3" height="3" class="pixel" style="--i: 3;" />
+      <rect x="9" y="9" width="3" height="3" class="pixel" style="--i: 4;" />
+      <rect x="12" y="9" width="3" height="3" class="pixel" style="--i: 5;" />
+      <rect x="15" y="9" width="3" height="3" class="pixel" style="--i: 6;" />
+      <rect x="18" y="9" width="3" height="3" class="pixel" style="--i: 7;" />
+      <rect x="21" y="9" width="3" height="3" class="pixel" style="--i: 8;" />
+      <rect x="18" y="6" width="3" height="3" class="pixel" style="--i: 9;" />
+      <rect x="18" y="12" width="3" height="3" class="pixel" style="--i: 10;" />
+      <rect x="15" y="3" width="3" height="3" class="pixel" style="--i: 11;" />
+      <rect x="15" y="15" width="3" height="3" class="pixel" style="--i: 12;" />
+      <rect x="12" width="3" height="3" class="pixel" style="--i: 13;" />
+      <rect x="12" y="18" width="3" height="3" class="pixel" style="--i: 14;" />
+    </svg>
+  </div>
+</div>
+
+</body>
+</html>
