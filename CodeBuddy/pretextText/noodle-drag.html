@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pretext · 面条拖拽</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: #111827;
+    }
+
+    header h1 { font-size: 1rem; font-weight: 600; margin-bottom: 0.35rem; }
+    header p { font-size: 0.82rem; opacity: 0.65; max-width: 68ch; line-height: 1.55; }
+    header a { color: #7dd3fc; }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem 1.25rem 1.25rem;
+      gap: 0.75rem;
+      min-height: 0;
+    }
+
+    .hint { font-size: 0.78rem; opacity: 0.6; line-height: 1.5; }
+
+    .stage-wrap {
+      flex: 1;
+      position: relative;
+      min-height: 280px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    canvas { display: block; width: 100%; height: 100%; }
+
+    .stats {
+      font-size: 0.78rem;
+      font-variant-numeric: tabular-nums;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>面条拖拽</h1>
+    <p>
+      <a href="./index.html">← 返回</a> ·
+      Pretext 测量每段文字宽度作为软体链静息长度；Canvas 绘制 + Verlet 物理模拟拖拽。
+    </p>
+  </header>
+
+  <main>
+    <p class="hint">鼠标按住文字链上任意一点拖动，整条文字会像面条一样弯曲。段宽来自 Pretext measureNaturalWidth。</p>
+
+    <div class="stats" id="noodleStats">段数 — · 模拟帧 —</div>
+    <div class="stage-wrap" id="noodleStage">
+      <canvas id="noodleCanvas"></canvas>
+    </div>
+
+  </main>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "@chenglou/pretext": "https://cdn.jsdelivr.net/npm/@chenglou/pretext@0.0.8/dist/layout.js"
+    }
+  }
+  </script>
+  <script type="module" src="./noodle-drag.js"></script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pretext · 自动计算字号（HTML 排版）</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: #111827;
+    }
+
+    header h1 { font-size: 1rem; font-weight: 600; margin-bottom: 0.35rem; }
+    header p { font-size: 0.82rem; opacity: 0.65; max-width: 68ch; line-height: 1.55; }
+    header a { color: #7dd3fc; }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem 1.25rem 1.25rem;
+      gap: 0.75rem;
+      min-height: 0;
+    }
+
+    .hint { font-size: 0.78rem; opacity: 0.6; line-height: 1.5; }
+
+  /* 舞台：纯 HTML 区域，网格用 CSS 背景绘制（不再使用 Canvas） */
+    .stage-wrap {
+      flex: 1;
+      position: relative;
+      min-height: 280px;
+      border-radius: 12px;
+      overflow: hidden;
+      background-color: #1e293b;
+      background-image:
+        linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+      background-size: 32px 32px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* 可拖拽缩放的排版框；文字在框内的 <p> 里，由浏览器换行 */
+    .fit-box {
+      position: absolute;
+      border: 2px dashed rgba(56, 189, 248, 0.55);
+      background: rgba(15, 23, 42, 0.72);
+      border-radius: 8px;
+      padding: 16px;
+      touch-action: none;
+      cursor: move;
+      overflow: hidden;
+    }
+
+    .fit-box-label {
+      position: absolute;
+      top: -1.4rem;
+      left: 0;
+      font-size: 0.72rem;
+      color: #7dd3fc;
+      white-space: nowrap;
+    }
+
+    /* 行容器：字号由 JS 写入；内部每行一个 .fit-line */
+    .fit-text {
+      width: 100%;
+      margin: 0;
+      color: #f8fafc;
+      font-weight: 700;
+    }
+
+    /* Pretext 断行结果；nowrap 防止二次折行。不要加 ellipsis，行宽由 Pretext 与内容区实测对齐 */
+    .fit-line {
+      white-space: nowrap;
+    }
+
+    .fit-handle {
+      position: absolute;
+      right: -6px;
+      bottom: -6px;
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      background: #38bdf8;
+      cursor: nwse-resize;
+      box-shadow: 0 0 0 2px #0f172a;
+    }
+
+    .stats {
+      font-size: 0.78rem;
+      font-variant-numeric: tabular-nums;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>自动计算字号 · HTML 排版</h1>
+    <p>
+      <a href="./index.html">← 返回</a> ·
+      Pretext 负责<strong>字号二分 + 按词断行</strong>；HTML 按行渲染
+      <code>&lt;div class="fit-line"&gt;</code>，避免浏览器二次折行导致分词不一致。
+    </p>
+  </header>
+
+  <main>
+    <p class="hint">拖拽虚线框移动、右下角改大小。Pretext 按词断行后写入多行 HTML，每行不再被浏览器拆开。</p>
+
+    <div class="stats" id="fitStats">字号 — · 行数 — · 计算耗时 —</div>
+    <div class="stage-wrap" id="fitStage">
+      <div class="fit-box" id="fitBox">
+        <span class="fit-box-label">HTML 按行渲染 · Pretext 断行</span>
+        <div class="fit-text" id="fitText"></div>
+        <div class="fit-handle" id="fitHandle"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "@chenglou/pretext": "https://cdn.jsdelivr.net/npm/@chenglou/pretext@0.0.8/dist/layout.js"
+    }
+  }
+  </script>
+  <script type="module" src="./auto-fit.js"></script>
+</body>
+</html>
